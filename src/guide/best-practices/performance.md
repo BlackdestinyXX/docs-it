@@ -1,45 +1,44 @@
 ---
 outline: deep
 ---
-
 # Performance {#performance}
 
-## Overview {#overview}
+## Panoramica {#overview}
 
-Vue is designed to be performant for most common use cases without much need for manual optimizations. However, there are always challenging scenarios where extra fine-tuning is needed. In this section, we will discuss what you should pay attention to when it comes to performance in a Vue application.
+Vue è progettato per essere performante nella maggior parte dei casi senza bisogno di apportare ottimizzazioni manuali. Tuttavia, ci sono sempre scenari complessi dove è necessaria una messa a punto aggiuntiva. In questa sezione, discuteremo del perché dovresti prestare attenzione quando si parla di performance in un applicazione Vue.
 
-First, let's discuss the two major aspects of web performance:
+Per prima cosa, discutiamo dei due maggiori aspetti delle performance web:
 
-- **Page Load Performance**: how fast the application shows content and becomes interactive on the initial visit. This is usually measured using web vital metrics like [Largest Contentful Paint (LCP)](https://web.dev/lcp/) and [First Input Delay (FID)](https://web.dev/fid/).
+- Performance del caricamento della pagina: quando veloce la pagina mostra il suo contenuto e diventa interessativa alla visita iniziale. Di solito è misurata usando metriche web vitali come il [Largest Contentful Paint (LCP)](https://web.dev/lcp/) e [First Input Delay (FID)](https://web.dev/fid/).
+- Performance d'aggiornamento: quanto velocemente l'applicazione si aggiorna in risposta all'input dell'utente. Per esempio, quando veloce una lista si aggiorna quando un utente scrive nella casella di ricerca, o quanto veloce la pagina passa ad un'altra quando l'utente clicca in un link di navigazione in una Single-Page Application (SPA).
 
-- **Update Performance**: how fast the application updates in response to user input. For example, how fast a list updates when the user types in a search box, or how fast the page switches when the user clicks a navigation link in a Single-Page Application (SPA).
+Mentre sarebbe ideale massimizzare entrambe, architetture di frontend diverse tendono a modificare la facilità con cui ci si vuole attenere alle perfomance in questi aspetti. In aggiunta, il tipo di applicazione che stai sviluppando influenza molto gli aspetti prioritari in termini di performance. Pertanto, il primo step da seguire per assicurarsi performance ottimali è selezionare l'architettura corretta per il tipo di applicazione che stai sviluppando:
 
-While it would be ideal to maximize both, different frontend architectures tend to affect how easy it is to attain desired performance in these aspects. In addition, the type of application you are building greatly influences what you should prioritize in terms of performance. Therefore, the first step of ensuring optimal performance is picking the right architecture for the type of application you are building:
+Consulta i modi di utilizzare Vue per vedere come puoi sfruttare Vue in diversi modi.
 
-- Consult [Ways of Using Vue](/guide/extras/ways-of-using-vue) to see how you can leverage Vue in different ways.
+- Consulta [Modi di Utilizzare Vue](/guide/extras/ways-of-using-vue) per vedere come puoi sfruttare Vue in diversi modi.
+- Jason Miller discute dei tipi di applicazioni web e la rispettiva implementazione ideale in [Application Holotypes](https://jasonformat.com/application-holotypes/).
 
-- Jason Miller discusses the types of web applications and their respective ideal implementation / delivery in [Application Holotypes](https://jasonformat.com/application-holotypes/).
+## Opzioni di Profilazione {#profiling-options}
 
-## Profiling Options {#profiling-options}
+Per migliorare le performance, dobbiamo prima conoscere come misurarle. Ci sono molteplici strumenti che possono aiutare:
 
-To improve performance, we need to first know how to measure it. There are a number of great tools that can help in this regard:
-
-For profiling load performance of production deployments:
+Per profilare le performance di caricamento delle implementazioni di produzione:
 
 - [PageSpeed Insights](https://pagespeed.web.dev/)
 - [WebPageTest](https://www.webpagetest.org/)
 
-For profiling performance during local development:
+Per profilare le performance durante lo sviluppo locale:
 
 - [Chrome DevTools Performance Panel](https://developer.chrome.com/docs/devtools/evaluate-performance/)
-  - [`app.config.performance`](/api/application#app-config-performance) enables Vue-specific performance markers in Chrome DevTools' performance timeline.
-- [Vue DevTools Extension](/guide/scaling-up/tooling#browser-devtools) also provides a performance profiling feature.
+  - [`app.config.performance`](/api/application#app-config-performance) attiva dei marcatori specifici di Vue nella timeline delle performance dei Chrome DevTools.
+- [Vue DevTools Extension](/guide/scaling-up/tooling#browser-devtools) fornisce inoltre una funzionalità per la profilazione.
 
-## Page Load Optimizations {#page-load-optimizations}
+## Ottimizzazioni caricamento della pagina {#page-load-optimizations}
 
-There are many framework-agnostic aspects for optimizing page load performance - check out [this web.dev guide](https://web.dev/fast/) for a comprehensive round up. Here, we will primarily focus on techniques that are specific to Vue.
+Ci sono molti aspetti per l'ottimizzazione del caricamento della pagina relativi al framework - dai un'occhiata [a questa guida](https://web.dev/fast/) per un riepilogo completo. Qui, ci concentreremo principalmente a tecniche specifiche di Vue.
 
-### Choosing the Right Architecture {#choosing-the-right-architecture}
+### Scegliere l'Architettura Corretta {#choosing-the-right-architecture}
 
 If your use case is sensitive to page load performance, avoid shipping it as a pure client-side SPA. You want your server to be directly sending HTML containing the content the users want to see. Pure client-side rendering suffers from slow time-to-content. This can be mitigated with [Server-Side Rendering (SSR)](/guide/extras/ways-of-using-vue#fullstack-ssr) or [Static Site Generation (SSG)](/guide/extras/ways-of-using-vue#jamstack-ssg). Check out the [SSR Guide](/guide/scaling-up/ssr) to learn about performing SSR with Vue. If your app doesn't have rich interactivity requirements, you can also use a traditional backend server to render the HTML and enhance it with Vue on the client.
 
@@ -52,15 +51,11 @@ One of the most effective ways to improve page load performance is shipping smal
 - Use a build step if possible.
 
   - Many of Vue's APIs are ["tree-shakable"](https://developer.mozilla.org/en-US/docs/Glossary/Tree_shaking) if bundled via a modern build tool. For example, if you don't use the built-in `<Transition>` component, it won't be included in the final production bundle. Tree-shaking can also remove other unused modules in your source code.
-
   - When using a build step, templates are pre-compiled so we don't need to ship the Vue compiler to the browser. This saves **14kb** min+gzipped JavaScript and avoids the runtime compilation cost.
-
 - Be cautious of size when introducing new dependencies! In real-world applications, bloated bundles are most often a result of introducing heavy dependencies without realizing it.
 
   - If using a build step, prefer dependencies that offer ES module formats and are tree-shaking friendly. For example, prefer `lodash-es` over `lodash`.
-
   - Check a dependency's size and evaluate whether it is worth the functionality it provides. Note if the dependency is tree-shaking friendly, the actual size increase will depend on the APIs you actually import from it. Tools like [bundlejs.com](https://bundlejs.com/) can be used for quick checks, but measuring with your actual build setup will always be the most accurate.
-
 - If you are using Vue primarily for progressive enhancement and prefer to avoid a build step, consider using [petite-vue](https://github.com/vuejs/petite-vue) (only **6kb**) instead.
 
 ### Code Splitting {#code-splitting}

@@ -59,6 +59,7 @@ export default {
 </div>
 <div class="composition-api">
 
+
 ```vue
 <script setup>
 import { ref, watch } from 'vue'
@@ -115,6 +116,7 @@ Users can navigate an application through headings. Having descriptive headings 
 ### Landmarks {#landmarks}
 
 [Landmarks](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/landmark_role) provide programmatic access to sections within an application. Users who rely on assistive technology can navigate to each section of the application and skip over content. You can use [ARIA roles](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles) to help you achieve this.
+
 
 | HTML            | ARIA Role            | Landmark Purpose                                                                                                 |
 | --------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------- |
@@ -436,7 +438,6 @@ You can use this technique to create functional images.
     />
   </form>
   ```
-
 - Icons
 
 ```vue-html
